@@ -3,8 +3,13 @@
 import Link from "next/link";
 import { useState, useEffect, ChangeEvent, HTMLInputTypeAttribute } from "react"
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const SignUp = () => {
+
+    const router = useRouter();
+
     const[csrfToken, setCsrfToken] = useState<string | null>(null);
 
     useEffect(() => {
@@ -57,11 +62,21 @@ const SignUp = () => {
         e.preventDefault();
         setPending(true);
 
-        await fetch("/api/auth/signup", {
+        const res = await fetch("/api/auth/signup", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(form),
         })
+
+        if(res?.ok) {
+            router.push('/');
+        } else if(res?.status === 400) {
+            toast.error("Email already in use")
+            setPending(false);
+        } else {
+            toast.error("Something went wrong");
+            setPending(false);
+        }
     }
 
     return (
@@ -76,7 +91,7 @@ const SignUp = () => {
                             <input placeholder="Email" className="focus:outline-slate-400 invalid:outline-red-400 rounded-lg w-[90%] sm:w-[368.5] p-3 outline-2 outline-slate-300 text-slate-900 text-3xl mb-5" value={form.email} onChange={(e) => handleChange("email", e)} disabled={pending} required></input>
                             <input minLength={8} type="password" placeholder="Password" className="focus:outline-slate-400 invalid:outline-red-400 rounded-lg w-[90%] sm:w-[368.5] p-3 outline-2 outline-slate-300 text-slate-900 text-3xl mb-5" value={form.password} onChange={(e) => handleChange("password", e)} disabled={pending} required></input>
                             <input minLength={8} type="password" placeholder="Confirm Password" className="focus:outline-slate-400 invalid:outline-red-400 rounded-lg w-[90%] sm:w-[368.5] p-3 outline-2 outline-slate-300 text-slate-900 text-3xl mb-12" value={form.confirmPassword} onChange={(e) => handleChange("confirmPassword", e)} disabled={pending} required></input>
-                            <button className="flex disabled:bg-slate-500 justify-center rounded-lg w-[90%] sm:w-[368.65] h-[68] py-4 bg-[#490843] hover:bg-[#490822] active:bg-slate-900 mb-2" disabled={pending || invalid} onClick={() => {}}>
+                            <button className="flex disabled:bg-slate-500 justify-center rounded-lg w-[90%] sm:w-[368.65] h-[68] py-4 bg-sky-950 hover:bg-[#051f30] active:bg-slate-900 mb-2" disabled={pending || invalid} onClick={() => {}}>
                                 <h1 className="text-3xl text-zinc-200">Create Account</h1>
                             </button>
                         </form>
@@ -86,6 +101,7 @@ const SignUp = () => {
                         </p>
                     </div>
                 </div>
+                <ToastContainer />
             </div>
         </div>
     );

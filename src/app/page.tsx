@@ -1,6 +1,11 @@
+import { ToastContainer } from "react-toastify";
+
 const Home = () => {
   return (
-    <div>Home Page</div>
+    <div>
+      Home Page
+      <ToastContainer />
+    </div>
   );
 }
 
